@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import CustomButton from "../components/CustomButton";
-import ToastAlert from "../components/ToastAlert";
 import { toast } from "react-toastify";
 import useFetch from "../hooks/useFetch";
 import useStorage from "../hooks/useStorage";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { Box } from "@mui/material";
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
@@ -12,11 +16,13 @@ const Signup = () => {
   const { setDataToStorage } = useStorage();
 
   const [userDetails, setUserDetails] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
-    phoneNumber: "",
+    phone_number: "",
     password: "",
+    role: "",
+    company_name: "",
   });
 
   const handleRegister = async () => {
@@ -33,14 +39,14 @@ const Signup = () => {
     };
 
     if (
-      !userDetails.firstName ||
-      userDetails.firstName === "" ||
-      !userDetails.lastName ||
-      userDetails.lastName === "" ||
+      !userDetails.first_name ||
+      userDetails.first_name === "" ||
+      !userDetails.last_name ||
+      userDetails.last_name === "" ||
       !userDetails.email ||
       userDetails.email === "" ||
-      !userDetails.phoneNumber ||
-      userDetails.phoneNumber === "" ||
+      !userDetails.phone_number ||
+      userDetails.phone_number === "" ||
       !userDetails.password ||
       userDetails.password === ""
     ) {
@@ -49,21 +55,31 @@ const Signup = () => {
     } else if (!validateEmail(userDetails.email)) {
       toast.warn("Invalid Email");
       return;
-    } else if (!validateMobileNo(userDetails.phoneNumber)) {
+    } else if (!validateMobileNo(userDetails.phone_number)) {
       toast.warn("Invalid Mobile Number");
       return;
     }
 
     setLoading(true);
-    const data = await httpPost("proctor/register", userDetails);
+    const data = await httpPost("user/register", userDetails);
     if (data.isError) {
       setLoading(false);
       toast.error(`${data.data}`);
       return;
     } else if (data) {
-      setDataToStorage("proctorToken", data.data.token);
+      toast.success("Verification link sent on email.");
+      setDataToStorage("userToken", data.data.token);
+      setDataToStorage("userRole", userDetails.role);
       setLoading(false);
-      toast.success("Registration suceesfully!!");
+      setUserDetails({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone_number: "",
+        password: "",
+        role: "",
+        company_name: "",
+      });
     }
   };
 
@@ -71,7 +87,7 @@ const Signup = () => {
     <div className="flex justify-center px-[30px] items-center w-full h-screen">
       <div className="flex justify-center items-center w-full md:w-[400px] rounded-[10px] shadow-2xl">
         <div className="flex flex-col w-full px-[20px] py-[40px] justify-center items-center">
-          <span className="text-2xl text-center w-full md:w-[305px] md:text-[30px] font-nunito font-bold text-Background-secondary">
+          <span className="text-2xl text-center w-full md:w-[305px] md:text-[30px] font-nunito font-bold text-[#021E45]">
             Registration
           </span>
           <div className="flex flex-col my-8 w-full">
@@ -79,18 +95,18 @@ const Signup = () => {
               className="w-full text-[14px] md:text-[16px] bg-[#FFFAFA] p-[10px] font-nunito font-bold text-Background-secondary !outline-none rounded-sm border-[1px] border-gray-300"
               placeholder="FirstName"
               type="text"
-              value={userDetails.firstName}
+              value={userDetails.first_name}
               onChange={(e) =>
-                setUserDetails({ ...userDetails, firstName: e.target.value })
+                setUserDetails({ ...userDetails, first_name: e.target.value })
               }
             />
             <input
               className="w-full text-[14px] md:text-[16px] mt-2 bg-[#FFFAFA] p-[10px] font-nunito font-bold text-Background-secondary !outline-none rounded-sm border-[1px] border-gray-300"
               placeholder="LastName"
               type="text"
-              value={userDetails.lastName}
+              value={userDetails.last_name}
               onChange={(e) =>
-                setUserDetails({ ...userDetails, lastName: e.target.value })
+                setUserDetails({ ...userDetails, last_name: e.target.value })
               }
             />
             <input
@@ -106,9 +122,9 @@ const Signup = () => {
               className="w-full text-[14px] md:text-[16px] mt-2 bg-[#FFFAFA] p-[10px] font-nunito font-bold text-Background-secondary !outline-none rounded-sm border-[1px] border-gray-300"
               placeholder="Mobile No."
               type="text"
-              value={userDetails.phoneNumber}
+              value={userDetails.phone_number}
               onChange={(e) =>
-                setUserDetails({ ...userDetails, phoneNumber: e.target.value })
+                setUserDetails({ ...userDetails, phone_number: e.target.value })
               }
             />
             <input
@@ -120,6 +136,63 @@ const Signup = () => {
                 setUserDetails({ ...userDetails, password: e.target.value })
               }
             />
+            <div className="mt-2">
+              <Box>
+                <FormControl fullWidth>
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ textAlign: "center" }}
+                  >
+                    Role
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={userDetails.role}
+                    label="Age"
+                    onChange={(e: SelectChangeEvent) =>
+                      setUserDetails({
+                        ...userDetails,
+                        role: e.target.value as string,
+                      })
+                    }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        padding: "10px",
+                        fontFamily: "Nunito Sans",
+                        color: "#021E45",
+                        fontWeight: "700",
+                      },
+                      "& .MuiInputLabel-root": {
+                        fontFamily: "Nunito Sans",
+                        fontWeight: "700",
+                      },
+                      "& .MuiInputBase-input": {
+                        backgroundColor: "#FFFAFA",
+                      },
+                    }}
+                  >
+                    <MenuItem value={"RECRUITER"}>Recruiter</MenuItem>
+                    <MenuItem value={"CANDIDATE"}>Candidate</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </div>
+
+            {userDetails.role === "RECRUITER" ? (
+              <input
+                className="w-full text-[14px] md:text-[16px] mt-2 bg-[#FFFAFA] p-[10px] font-nunito font-bold text-Background-secondary !outline-none rounded-sm border-[1px] border-gray-300"
+                placeholder="Company Name"
+                type="text"
+                value={userDetails.company_name}
+                onChange={(e) =>
+                  setUserDetails({
+                    ...userDetails,
+                    company_name: e.target.value,
+                  })
+                }
+              />
+            ) : null}
           </div>
 
           <div className="flex items-center justify-center w-full">
@@ -150,8 +223,6 @@ const Signup = () => {
           </div>
         </div>
       </div>
-
-      <ToastAlert />
     </div>
   );
 };

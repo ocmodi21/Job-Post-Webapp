@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import useFetch from "../hooks/useFetch";
 import useStorage from "../hooks/useStorage";
 import CustomButton from "../components/CustomButton";
-import ToastAlert from "../components/ToastAlert";
 
 const Signin = () => {
   const navigate = useNavigate();
@@ -40,16 +39,17 @@ const Signin = () => {
     }
 
     setLoading(true);
-    const data = await httpPost("proctor/login", userDetails);
+    const data = await httpPost("user/login", userDetails);
     if (data.isError) {
       setLoading(false);
       toast.error(`${data.data}`);
       return;
     } else if (data) {
-      setDataToStorage("proctorToken", data.data.token);
-      setLoading(false);
       toast.success("Login suceesfully!!");
-      navigate("/");
+      setDataToStorage("userToken", data.data.token);
+      setDataToStorage("userRole", data.data.user.role);
+      setLoading(false);
+      navigate("/recruiterDashboard");
     }
   };
 
@@ -57,7 +57,7 @@ const Signin = () => {
     <div className="flex justify-center px-[30px] items-center w-full h-screen">
       <div className="flex justify-center items-center w-full md:w-[400px] rounded-[10px] shadow-2xl">
         <div className="flex flex-col w-full px-[20px] py-[40px] justify-center items-center">
-          <span className="text-2xl text-center w-full md:w-[305px] md:text-[30px] font-nunito font-bold text-Background-secondary">
+          <span className="text-2xl text-center w-full md:w-[305px] md:text-[30px] font-nunito font-bold text-[#021E45]">
             Welcome Back!
           </span>
           <div className="flex flex-col my-8 w-full">
@@ -109,8 +109,6 @@ const Signin = () => {
           </div>
         </div>
       </div>
-
-      <ToastAlert />
     </div>
   );
 };

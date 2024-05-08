@@ -10,13 +10,13 @@ const Landing = () => {
 
         <div className="flex flex-row justify-center items-center gap-5 mt-[20px]">
           <Link to="/login">
-            <button className="px-[20px] py-[10px] border-[1px] border-black rounded-lg font-nunito text-lg font-bold">
+            <button className="px-[20px] py-[10px] border-[1px] border-black hover:bg-[#F5F7F8] rounded-lg font-nunito text-lg font-bold">
               Sign In
             </button>
           </Link>
 
           <Link to="/register">
-            <button className="px-[20px] py-[10px] border-[1px] border-black rounded-lg font-nunito text-lg font-bold">
+            <button className="px-[20px] py-[10px] border-[1px] border-black hover:bg-[#F5F7F8] rounded-lg font-nunito text-lg font-bold">
               Sign Up
             </button>
           </Link>
