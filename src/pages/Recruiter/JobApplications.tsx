@@ -1,13 +1,55 @@
 import { useState } from "react";
 import CustomButton from "../../components/CustomButton";
+import { toast } from "react-toastify";
+import useFetch from "../../hooks/useFetch";
+import useStorage from "../../hooks/useStorage";
 
 const JobApplications = () => {
+  const [loading, setLoading] = useState(false);
+  const { httpPost } = useFetch();
+  const { getDataFromStorage } = useStorage();
   const [jobData, setJobData] = useState({
     title: "",
     location: "",
     salary: "",
     description: "",
   });
+
+  const handleApplication = async () => {
+    console.log(jobData);
+    if (
+      !jobData.title ||
+      jobData.title === "" ||
+      !jobData.location ||
+      jobData.location === "" ||
+      !jobData.salary ||
+      jobData.salary === "" ||
+      !jobData.description ||
+      jobData.description === ""
+    ) {
+      toast.warn("All fields are mandatory.");
+      return;
+    }
+
+    setLoading(true);
+    const token = getDataFromStorage("userToken");
+    console.log(token);
+    const data = await httpPost("recruiter/job", jobData, token);
+    if (data.isError) {
+      setLoading(false);
+      toast.error(`${data.data}`);
+      return;
+    } else if (data) {
+      toast.success("Job created suceesfully!!");
+      setLoading(false);
+      setJobData({
+        title: "",
+        location: "",
+        salary: "",
+        description: "",
+      });
+    }
+  };
 
   return (
     <div className="md:px-[30px] lg:px-[50px] xl:px-[70px]">
@@ -64,7 +106,11 @@ const JobApplications = () => {
       </div>
 
       <div className="w-full mt-[20px] md:w-[40%] lg:w-[30%] xl:w-[20%]">
-        <CustomButton title="Create Job" />
+        <CustomButton
+          title="Create Job"
+          onClick={handleApplication}
+          loading={loading}
+        />
       </div>
     </div>
   );
