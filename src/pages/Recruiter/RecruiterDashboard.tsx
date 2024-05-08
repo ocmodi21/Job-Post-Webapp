@@ -33,6 +33,7 @@ const RecruiterDashboard = (props: Props) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [recruiterTabStatus, setRecruiterTabStatus] = useState("CreateJob");
+  const [jobId, setJobId] = useState<number>(0);
   const dispatch = useDispatch();
   const { clearDataFromStorage } = useStorage();
   const navigate = useNavigate();
@@ -206,8 +207,15 @@ const RecruiterDashboard = (props: Props) => {
       >
         <Toolbar />
         {recruiterTabStatus === "CreateJob" ? <JobApplications /> : null}
-        {recruiterTabStatus === "AllJob" ? <AllJobs /> : null}
-        {recruiterTabStatus === "View" ? <Responses /> : null}
+        {recruiterTabStatus === "AllJob" ? (
+          <AllJobs
+            setRecruiterTabStatus={setRecruiterTabStatus}
+            setJobId={setJobId}
+          />
+        ) : null}
+        {recruiterTabStatus === "View" ? (
+          <Responses id={jobId} setRecruiterTabStatus={setRecruiterTabStatus} />
+        ) : null}
       </Box>
     </Box>
   );

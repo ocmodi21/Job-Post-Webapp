@@ -4,7 +4,6 @@ export default function useFetch() {
     token?: string | null
   ): Promise<any> => {
     try {
-      console.log(`${import.meta.env.VITE_API_KEY}/${endpoint}`);
       const response = await fetch(
         `${import.meta.env.VITE_API_KEY}/${endpoint}`,
         {

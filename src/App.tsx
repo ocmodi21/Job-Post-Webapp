@@ -20,7 +20,7 @@ const App = () => {
     const role = getDataFromStorage("userRole");
     if (token && role) {
       dispatch(setToken(token));
-      if (role === "CANDIDATE") {
+      if (role === "RECRUITER") {
         navigate("/recruiterDashboard");
       } else {
         navigate("/applicantDashboard");
