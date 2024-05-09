@@ -49,7 +49,12 @@ const Signin = () => {
       setDataToStorage("userToken", data.data.token);
       setDataToStorage("userRole", data.data.user.role);
       setLoading(false);
-      navigate("/recruiterDashboard");
+
+      if (data.data.user.role === "CANDIDATE") {
+        navigate("/applicantDashboard");
+      } else {
+        navigate("/recruiterDashboard");
+      }
     }
   };
 
