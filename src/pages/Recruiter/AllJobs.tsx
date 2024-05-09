@@ -69,7 +69,6 @@ const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
     setLoading(true);
     const token = getDataFromStorage("userToken");
     const data = await httpGet("recruiter/jobs", token);
-    console.log(data);
 
     setLoading(false);
     if (data.isError) {

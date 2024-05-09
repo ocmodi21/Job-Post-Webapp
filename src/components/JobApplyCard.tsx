@@ -1,18 +1,59 @@
+import CircularProgress from "@mui/material/CircularProgress";
+import { toast } from "react-toastify";
+import useStorage from "../hooks/useStorage";
+
 type JobApplyCardProp = {
+  id: number;
   company_name: string;
   title: string;
   description: string;
   salary: string;
   location: string;
+  applyLoading: boolean;
+  setApplyLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  getAllJobsData: () => Promise<void>;
 };
 
 const JobApplyCard = ({
+  id,
   title,
   company_name,
   description,
   salary,
   location,
+  applyLoading,
+  setApplyLoading,
+  getAllJobsData,
 }: JobApplyCardProp) => {
+  const { getDataFromStorage } = useStorage();
+  const token = getDataFromStorage("userToken");
+
+  const handleApply = async (jobId: number) => {
+    setApplyLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_KEY}/candidate/applyJob/${jobId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const res = await response.json();
+
+      if (response.status !== 200) {
+        toast.error(res.message);
+      }
+      setApplyLoading(false);
+      toast.success("Applied Successfully");
+      getAllJobsData();
+    } catch (error) {
+      setApplyLoading(false);
+      toast.error("Something went wrong!!");
+    }
+  };
   return (
     <div className="flex w-full flex-col p-[15px] border-[1px] hover:border-black rounded-[5px] mb-4 cursor-pointer">
       <div className="flex justify-between">
@@ -21,8 +62,15 @@ const JobApplyCard = ({
             {company_name}
           </span>
         </div>
-        <div className="hidden md:flex px-[20px] py-[7px] text-white font-nunito h-[40px] bg-[#021E45] rounded-[5px]">
-          <span>Apply Now</span>
+        <div
+          className="hidden md:flex px-[20px] py-[7px] text-white font-nunito h-[40px] bg-[#021E45] rounded-[5px]"
+          onClick={() => handleApply(id)}
+        >
+          {applyLoading ? (
+            <CircularProgress size={"small"} sx={{ color: "white" }} />
+          ) : (
+            <span>Apply Now</span>
+          )}
         </div>
       </div>
 
@@ -47,8 +95,15 @@ const JobApplyCard = ({
         </div>
       </div>
 
-      <div className="flex md:hidden px-[20px] py-[7px] text-white h-[40px] bg-[#021E45] font-nunito rounded-[5px] mt-[15px] justify-center items-center">
-        <span>Apply Now</span>
+      <div
+        className="flex md:hidden px-[20px] py-[7px] text-white h-[40px] bg-[#021E45] font-nunito rounded-[5px] mt-[15px] justify-center items-center"
+        onClick={() => handleApply(id)}
+      >
+        {applyLoading ? (
+          <CircularProgress sx={{ color: "#021E45" }} />
+        ) : (
+          <span>Apply Now</span>
+        )}
       </div>
     </div>
   );

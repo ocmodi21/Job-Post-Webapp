@@ -4,7 +4,6 @@ import { CircularProgress, Pagination, Stack } from "@mui/material";
 import useStorage from "../../hooks/useStorage";
 import useFetch from "../../hooks/useFetch";
 import SearchBar from "../../components/SearchBar";
-import { AppliedJobInfoPropType } from "../../types/AppliedJobInfo";
 import useDebounce from "../../hooks/useDebounce";
 
 const ItemsPerPage = 10;
@@ -13,14 +12,14 @@ const AppliedJobsTable = () => {
   const { getDataFromStorage } = useStorage();
   const { httpGet } = useFetch();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<AppliedJobInfoPropType[]>([]);
+  const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
     getAllResponses();
   }, []);
 
   //Search
-  const [searchData, setSearchData] = useState<AppliedJobInfoPropType[]>([]);
+  const [searchData, setSearchData] = useState<any[]>([]);
   const [searchText, setSearchText] = useState("");
 
   useDebounce(
@@ -33,15 +32,15 @@ const AppliedJobsTable = () => {
 
   const filterData = () => {
     const text = searchText.toLowerCase();
-    const filteredJobs: AppliedJobInfoPropType[] = [];
+    const filteredJobs: any[] = [];
 
     for (const job of data) {
       if (
-        job.title.toLowerCase().includes(text) ||
-        job.location.toLowerCase().includes(text) ||
-        job.salary.toLowerCase().includes(text) ||
-        job.company_name.toLowerCase().includes(text) ||
-        job.status.toLowerCase().includes(text)
+        job.job.title.toLowerCase().includes(text) ||
+        job.job.location.toLowerCase().includes(text) ||
+        job.job.salary.toLowerCase().includes(text) ||
+        job.job.company_name.toLowerCase().includes(text) ||
+        job.job.status.toLowerCase().includes(text)
       ) {
         filteredJobs.push(job);
       }
@@ -66,14 +65,13 @@ const AppliedJobsTable = () => {
     setLoading(true);
     const token = getDataFromStorage("userToken");
     const applicationData = await httpGet(`candidate/appliedJobs`, token);
-    console.log(applicationData);
 
     setLoading(false);
     if (applicationData.isError) {
       toast.error(`${applicationData.data}`);
       return;
-    } else if (data) {
-      setData(applicationData.data.applications);
+    } else if (applicationData) {
+      setData(applicationData);
     }
   };
 
@@ -130,23 +128,23 @@ const AppliedJobsTable = () => {
                   currentData.map((item) => {
                     return (
                       <tr
-                        key={item.id}
+                        key={item.job.id}
                         className="hover:bg-[#F5F7F8] cursor-pointer"
                       >
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                          {item.id}
+                          {item.job.id}
                         </td>
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                          {item.company_name}
+                          {item.job.company_name}
                         </td>
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                          {item.title}
+                          {item.job.title}
                         </td>
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                          {item.location}
+                          {item.job.location}
                         </td>
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                          {item.salary}
+                          {item.job.salary}
                         </td>
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
                           {item.status === "ACCEPTED" ? (

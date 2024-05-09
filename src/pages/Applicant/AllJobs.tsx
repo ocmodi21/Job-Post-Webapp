@@ -16,6 +16,8 @@ const AllJobs = () => {
   const { getDataFromStorage } = useStorage();
   const [jobData, setJobData] = useState<jobInfoPropType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const token = getDataFromStorage("userToken");
 
   //Search
   const [searchData, setSearchData] = useState<jobInfoPropType[]>([]);
@@ -61,9 +63,7 @@ const AllJobs = () => {
 
   const getAllJobsData = async () => {
     setLoading(true);
-    const token = getDataFromStorage("userToken");
     const data = await httpGet("candidate/newJobs", token);
-    console.log(data);
 
     setLoading(false);
     if (data.isError) {
@@ -90,11 +90,15 @@ const AllJobs = () => {
           {currentData.map((item) => (
             <div key={item.id}>
               <JobApplyCard
+                id={item.id}
                 title={item.title}
                 location={item.location}
                 salary={item.salary}
                 company_name={item.company_name}
                 description={item.description}
+                applyLoading={applyLoading}
+                setApplyLoading={setApplyLoading}
+                getAllJobsData={getAllJobsData}
               />
             </div>
           ))}

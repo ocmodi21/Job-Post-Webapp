@@ -20,14 +20,14 @@ const ResponseTable = ({ id }: TableDataProp) => {
   const { httpGet } = useFetch();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
-  const [data, setData] = useState<UserInfoPropType[]>([]);
+  const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
     getAllResponses();
   }, [id]);
 
   //Search
-  const [searchData, setSearchData] = useState<UserInfoPropType[]>([]);
+  const [searchData, setSearchData] = useState<any[]>([]);
   const [searchText, setSearchText] = useState("");
 
   useDebounce(
@@ -44,9 +44,9 @@ const ResponseTable = ({ id }: TableDataProp) => {
 
     for (const user of data) {
       if (
-        user.first_name.toLowerCase().includes(text) ||
-        user.last_name.toLowerCase().includes(text) ||
-        user.email.toLowerCase().includes(text)
+        user.application_created_by.first_name.toLowerCase().includes(text) ||
+        user.application_created_by.last_name.toLowerCase().includes(text) ||
+        user.application_created_by.email.toLowerCase().includes(text)
       ) {
         filteredJobs.push(user);
       }
@@ -139,23 +139,23 @@ const ResponseTable = ({ id }: TableDataProp) => {
                     currentData.map((item) => {
                       return (
                         <tr
-                          key={item.id}
+                          key={item.application_created_by.id}
                           className="hover:bg-[#F5F7F8] cursor-pointer"
                         >
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            {item.id}
+                            {item.application_created_by.id}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            {item.first_name}
+                            {item.application_created_by.first_name}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            {item.last_name}
+                            {item.application_created_by.last_name}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            {item.email}
+                            {item.application_created_by.email}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            {item.phone_number}
+                            {item.application_created_by.phone_number}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
                             <div className="flex fle-row gap-4">
