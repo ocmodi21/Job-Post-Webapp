@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Pagination, Stack } from "@mui/material";
 import useStorage from "../../hooks/useStorage";
 import useFetch from "../../hooks/useFetch";
 import SearchBar from "../../components/SearchBar";
 import { AppliedJobInfoPropType } from "../../types/AppliedJobInfo";
 
+const ItemsPerPage = 10;
+
 const AppliedJobsTable = () => {
   const { getDataFromStorage } = useStorage();
   const { httpGet } = useFetch();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<AppliedJobInfoPropType[] | null>(null);
+  const [data, setData] = useState<AppliedJobInfoPropType[]>([]);
 
   const getAllResponses = async () => {
     setLoading(true);
@@ -30,6 +32,19 @@ const AppliedJobsTable = () => {
   useEffect(() => {
     getAllResponses();
   }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * ItemsPerPage;
+  const endIndex = startIndex + ItemsPerPage;
+  const currentData = data.slice(startIndex, endIndex);
 
   return (
     <div className="flex flex-col">
@@ -80,8 +95,8 @@ const AppliedJobsTable = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 overflow-y-auto">
-                {data ? (
-                  data.map((item) => {
+                {currentData ? (
+                  currentData.map((item) => {
                     return (
                       <tr
                         key={item.id}
@@ -129,6 +144,25 @@ const AppliedJobsTable = () => {
                 )}
               </tbody>
             </table>
+          </div>
+
+          <div className="mt-[30px]">
+            <Stack spacing={2}>
+              <Pagination
+                count={Math.ceil(data.length / ItemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                size="large"
+                variant="outlined"
+                shape="rounded"
+                sx={{
+                  "& li .Mui-selected": {
+                    color: "white",
+                    backgroundColor: "#021E45",
+                  },
+                }}
+              />
+            </Stack>
           </div>
         </div>
       ) : (

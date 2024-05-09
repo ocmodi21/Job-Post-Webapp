@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import PaginationRounded from "../../components/Pagination";
 import SearchBar from "../../components/SearchBar";
 import JobCard from "../../components/jobCard";
 import useFetch from "../../hooks/useFetch";
@@ -7,11 +6,15 @@ import useStorage from "../../hooks/useStorage";
 import { toast } from "react-toastify";
 import { jobInfoPropType } from "../../types/JobInfo";
 import CircularProgress from "@mui/material/CircularProgress";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 
 type AllJobsProp = {
   setRecruiterTabStatus: React.Dispatch<React.SetStateAction<string>>;
   setJobId: React.Dispatch<React.SetStateAction<number>>;
 };
+
+const ItemsPerPage = 10;
 
 const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
   const { httpGet } = useFetch();
@@ -38,13 +41,18 @@ const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
     getAllJobsData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center">
-        <CircularProgress sx={{ color: "#021E45" }} />
-      </div>
-    );
-  }
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * ItemsPerPage;
+  const endIndex = startIndex + ItemsPerPage;
+  const currentData = jobData.slice(startIndex, endIndex);
 
   return (
     <div className="md:px-[30px] lg:px-[50px] xl:px-[70px]">
@@ -52,24 +60,47 @@ const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
 
       <SearchBar />
 
-      <div className="mb-[30px]">
-        {jobData.map((item, index) => (
-          <div key={index}>
-            <JobCard
-              id={item.id}
-              title={item.title}
-              location={item.location}
-              company_name={item.company_name}
-              setRecruiterTabStatus={setRecruiterTabStatus}
-              setJobId={setJobId}
-            />
+      {!loading ? (
+        <div>
+          <div className="mb-[30px]">
+            {currentData.map((item, index) => (
+              <div key={index}>
+                <JobCard
+                  id={item.id}
+                  title={item.title}
+                  location={item.location}
+                  company_name={item.company_name}
+                  setRecruiterTabStatus={setRecruiterTabStatus}
+                  setJobId={setJobId}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div>
-        <PaginationRounded />
-      </div>
+          <div>
+            <Stack spacing={2}>
+              <Pagination
+                count={Math.ceil(jobData.length / ItemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                size="large"
+                variant="outlined"
+                shape="rounded"
+                sx={{
+                  "& li .Mui-selected": {
+                    color: "white",
+                    backgroundColor: "#021E45",
+                  },
+                }}
+              />
+            </Stack>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center">
+          <CircularProgress sx={{ color: "#021E45" }} />
+        </div>
+      )}
     </div>
   );
 };

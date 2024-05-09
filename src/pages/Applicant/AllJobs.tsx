@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import PaginationRounded from "../../components/Pagination";
 import SearchBar from "../../components/SearchBar";
 import useFetch from "../../hooks/useFetch";
 import useStorage from "../../hooks/useStorage";
@@ -7,6 +6,9 @@ import { toast } from "react-toastify";
 import { jobInfoPropType } from "../../types/JobInfo";
 import CircularProgress from "@mui/material/CircularProgress";
 import JobApplyCard from "../../components/JobApplyCard";
+import { Pagination, Stack } from "@mui/material";
+
+const ItemsPerPage = 10;
 
 const AllJobs = () => {
   const { httpGet } = useFetch();
@@ -32,15 +34,28 @@ const AllJobs = () => {
     getAllJobsData();
   }, []);
 
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * ItemsPerPage;
+  const endIndex = startIndex + ItemsPerPage;
+  const currentData = jobData.slice(startIndex, endIndex);
+
   return (
     <div className="md:px-[30px] lg:px-[50px] xl:px-[70px]">
       <div className="flex text-3xl font-bold mb-[15px]">New Jobs</div>
 
       <SearchBar />
 
-      <div className="mb-[30px]">
-        {!loading ? (
-          jobData.map((item) => (
+      {!loading ? (
+        <div className="mb-[30px]">
+          {currentData.map((item) => (
             <div key={item.id}>
               <JobApplyCard
                 title={item.title}
@@ -50,17 +65,32 @@ const AllJobs = () => {
                 description={item.description}
               />
             </div>
-          ))
-        ) : (
-          <div className="flex justify-center items-center">
-            <CircularProgress sx={{ color: "#021E45" }} />
-          </div>
-        )}
-      </div>
+          ))}
 
-      <div>
-        <PaginationRounded />
-      </div>
+          <div>
+            <Stack spacing={2}>
+              <Pagination
+                count={Math.ceil(jobData.length / ItemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                size="large"
+                variant="outlined"
+                shape="rounded"
+                sx={{
+                  "& li .Mui-selected": {
+                    color: "white",
+                    backgroundColor: "#021E45",
+                  },
+                }}
+              />
+            </Stack>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center">
+          <CircularProgress sx={{ color: "#021E45" }} />
+        </div>
+      )}
     </div>
   );
 };

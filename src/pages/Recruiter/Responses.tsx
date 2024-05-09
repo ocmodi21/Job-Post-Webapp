@@ -1,4 +1,3 @@
-import PaginationRounded from "../../components/Pagination";
 import ResponseTable from "../../components/Table";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
@@ -19,11 +18,8 @@ const Responses = ({ id, setRecruiterTabStatus }: ResponseProp) => {
         </div>
         <span>Job Responses</span>
       </div>
-      <ResponseTable id={id} />
 
-      <div className="mt-[30px]">
-        <PaginationRounded />
-      </div>
+      <ResponseTable id={id} />
     </div>
   );
 };

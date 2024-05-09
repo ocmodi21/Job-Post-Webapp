@@ -1,4 +1,3 @@
-import PaginationRounded from "../../components/Pagination";
 import AppliedJobsTable from "./AppliedJobsTable";
 
 const AppliedJobs = () => {
@@ -7,11 +6,8 @@ const AppliedJobs = () => {
       <div className="flex flex-row items-center text-3xl font-bold mb-[15px] gap-4">
         <span>Applied Jobs</span>
       </div>
-      <AppliedJobsTable />
 
-      <div className="mt-[30px]">
-        <PaginationRounded />
-      </div>
+      <AppliedJobsTable />
     </div>
   );
 };
