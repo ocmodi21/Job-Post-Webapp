@@ -7,6 +7,7 @@ import useStorage from "../hooks/useStorage";
 import useFetch from "../hooks/useFetch";
 import { toast } from "react-toastify";
 import { CircularProgress, Pagination, Stack } from "@mui/material";
+import useDebounce from "../hooks/useDebounce";
 
 type TableDataProp = {
   id: number;
@@ -20,6 +21,51 @@ const ResponseTable = ({ id }: TableDataProp) => {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [data, setData] = useState<UserInfoPropType[]>([]);
+
+  useEffect(() => {
+    getAllResponses();
+  }, [id]);
+
+  //Search
+  const [searchData, setSearchData] = useState<UserInfoPropType[]>([]);
+  const [searchText, setSearchText] = useState("");
+
+  useDebounce(
+    () => {
+      setSearchData(filterData);
+    },
+    [data, searchText],
+    500
+  );
+
+  const filterData = () => {
+    const text = searchText.toLowerCase();
+    const filteredJobs: UserInfoPropType[] = [];
+
+    for (const user of data) {
+      if (
+        user.first_name.toLowerCase().includes(text) ||
+        user.last_name.toLowerCase().includes(text) ||
+        user.email.toLowerCase().includes(text)
+      ) {
+        filteredJobs.push(user);
+      }
+    }
+    return filteredJobs;
+  };
+
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * ItemsPerPage;
+  const endIndex = startIndex + ItemsPerPage;
+  const currentData = searchData.slice(startIndex, endIndex);
 
   const getAllResponses = async () => {
     setLoading(true);
@@ -39,26 +85,9 @@ const ResponseTable = ({ id }: TableDataProp) => {
     }
   };
 
-  useEffect(() => {
-    getAllResponses();
-  }, [id]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setCurrentPage(value);
-  };
-
-  const startIndex = (currentPage - 1) * ItemsPerPage;
-  const endIndex = startIndex + ItemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
-
   return (
     <div className="flex flex-col">
-      <SearchBar />
+      <SearchBar searchText={searchText} setSearchText={setSearchText} />
 
       {!loading ? (
         <div>

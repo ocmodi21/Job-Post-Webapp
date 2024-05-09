@@ -8,6 +8,7 @@ import { jobInfoPropType } from "../../types/JobInfo";
 import CircularProgress from "@mui/material/CircularProgress";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import useDebounce from "../../hooks/useDebounce";
 
 type AllJobsProp = {
   setRecruiterTabStatus: React.Dispatch<React.SetStateAction<string>>;
@@ -22,6 +23,48 @@ const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
   const [jobData, setJobData] = useState<jobInfoPropType[]>([]);
   const [loading, setLoading] = useState(false);
 
+  //Search
+  const [searchData, setSearchData] = useState<jobInfoPropType[]>([]);
+  const [searchText, setSearchText] = useState("");
+
+  useDebounce(
+    () => {
+      setSearchData(filterData);
+    },
+    [jobData, searchText],
+    500
+  );
+
+  const filterData = () => {
+    const text = searchText.toLowerCase();
+    const filteredJobs: jobInfoPropType[] = [];
+
+    for (const job of jobData) {
+      if (
+        job.title.toLowerCase().includes(text) ||
+        job.location.toLowerCase().includes(text) ||
+        job.salary.toLowerCase().includes(text) ||
+        job.company_name.toLowerCase().includes(text)
+      ) {
+        filteredJobs.push(job);
+      }
+    }
+    return filteredJobs;
+  };
+
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * ItemsPerPage;
+  const endIndex = startIndex + ItemsPerPage;
+  const currentData = searchData.slice(startIndex, endIndex);
+
   const getAllJobsData = async () => {
     setLoading(true);
     const token = getDataFromStorage("userToken");
@@ -34,6 +77,7 @@ const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
       return;
     } else if (data) {
       setJobData(data.data.jobs);
+      setSearchData(data.data.jobs);
     }
   };
 
@@ -41,24 +85,11 @@ const AllJobs = ({ setRecruiterTabStatus, setJobId }: AllJobsProp) => {
     getAllJobsData();
   }, []);
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setCurrentPage(value);
-  };
-
-  const startIndex = (currentPage - 1) * ItemsPerPage;
-  const endIndex = startIndex + ItemsPerPage;
-  const currentData = jobData.slice(startIndex, endIndex);
-
   return (
     <div className="md:px-[30px] lg:px-[50px] xl:px-[70px]">
       <div className="flex text-3xl font-bold mb-[15px]">Posted Jobs</div>
 
-      <SearchBar />
+      <SearchBar searchText={searchText} setSearchText={setSearchText} />
 
       {!loading ? (
         <div>

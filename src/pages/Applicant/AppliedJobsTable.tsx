@@ -5,6 +5,7 @@ import useStorage from "../../hooks/useStorage";
 import useFetch from "../../hooks/useFetch";
 import SearchBar from "../../components/SearchBar";
 import { AppliedJobInfoPropType } from "../../types/AppliedJobInfo";
+import useDebounce from "../../hooks/useDebounce";
 
 const ItemsPerPage = 10;
 
@@ -13,6 +14,53 @@ const AppliedJobsTable = () => {
   const { httpGet } = useFetch();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<AppliedJobInfoPropType[]>([]);
+
+  useEffect(() => {
+    getAllResponses();
+  }, []);
+
+  //Search
+  const [searchData, setSearchData] = useState<AppliedJobInfoPropType[]>([]);
+  const [searchText, setSearchText] = useState("");
+
+  useDebounce(
+    () => {
+      setSearchData(filterData);
+    },
+    [data, searchText],
+    500
+  );
+
+  const filterData = () => {
+    const text = searchText.toLowerCase();
+    const filteredJobs: AppliedJobInfoPropType[] = [];
+
+    for (const job of data) {
+      if (
+        job.title.toLowerCase().includes(text) ||
+        job.location.toLowerCase().includes(text) ||
+        job.salary.toLowerCase().includes(text) ||
+        job.company_name.toLowerCase().includes(text) ||
+        job.status.toLowerCase().includes(text)
+      ) {
+        filteredJobs.push(job);
+      }
+    }
+    return filteredJobs;
+  };
+
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * ItemsPerPage;
+  const endIndex = startIndex + ItemsPerPage;
+  const currentData = searchData.slice(startIndex, endIndex);
 
   const getAllResponses = async () => {
     setLoading(true);
@@ -29,26 +77,9 @@ const AppliedJobsTable = () => {
     }
   };
 
-  useEffect(() => {
-    getAllResponses();
-  }, []);
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setCurrentPage(value);
-  };
-
-  const startIndex = (currentPage - 1) * ItemsPerPage;
-  const endIndex = startIndex + ItemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
-
   return (
     <div className="flex flex-col">
-      <SearchBar />
+      <SearchBar searchText={searchText} setSearchText={setSearchText} />
 
       {!loading ? (
         <div className=" w-full inline-block align-middle">
