@@ -1,13 +1,13 @@
-import SearchBar from "./SearchBar";
+import SearchBar from "../../components/SearchBar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
-import { UserInfoPropType } from "../types/UserInfo";
-import useStorage from "../hooks/useStorage";
-import useFetch from "../hooks/useFetch";
+import { UserInfoPropType } from "../../types/UserInfo";
+import useStorage from "../../hooks/useStorage";
+import useFetch from "../../hooks/useFetch";
 import { toast } from "react-toastify";
 import { CircularProgress, Pagination, Stack } from "@mui/material";
-import useDebounce from "../hooks/useDebounce";
+import useDebounce from "../../hooks/useDebounce";
 
 type TableDataProp = {
   id: number;
@@ -17,10 +17,13 @@ const ItemsPerPage = 10;
 
 const ResponseTable = ({ id }: TableDataProp) => {
   const { getDataFromStorage } = useStorage();
-  const { httpGet } = useFetch();
+  const { httpGet, httpPut } = useFetch();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [applicationId, setApplicationId] = useState(0);
   const [data, setData] = useState<any[]>([]);
+  const token = getDataFromStorage("userToken");
+  const [resLoading, setResLoading] = useState(false);
 
   useEffect(() => {
     getAllResponses();
@@ -69,7 +72,6 @@ const ResponseTable = ({ id }: TableDataProp) => {
 
   const getAllResponses = async () => {
     setLoading(true);
-    const token = getDataFromStorage("userToken");
     const applicationData = await httpGet(
       `recruiter/job/${id}/applications`,
       token
@@ -82,6 +84,27 @@ const ResponseTable = ({ id }: TableDataProp) => {
       return;
     } else if (data) {
       setData(applicationData.data.applications);
+    }
+  };
+
+  const handleResponse = async (applicantId: number, resStatus: string) => {
+    setResLoading(true);
+    setApplicationId(applicantId);
+    setStatus(resStatus);
+    const responseData = await httpPut(
+      `recruiter/job/${id}/applications/${applicantId}`,
+      {
+        status: resStatus,
+      },
+      token
+    );
+
+    setResLoading(false);
+    if (responseData.isError) {
+      toast.error(`${responseData.data}`);
+      return;
+    } else if (data) {
+      toast.success("Response updated!!");
     }
   };
 
@@ -159,26 +182,44 @@ const ResponseTable = ({ id }: TableDataProp) => {
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
                             <div className="flex fle-row gap-4">
-                              <div onClick={() => setStatus("Accepted")}>
+                              <div
+                                onClick={() => {
+                                  handleResponse(
+                                    item.application_created_by.id,
+                                    "ACCEPTED"
+                                  );
+                                }}
+                              >
                                 {status === "" ? (
                                   <div className="flex justify-center items-center border-[1px] rounded-[50%] border-[green] p-[5px]">
                                     <CheckIcon sx={{ color: "green" }} />
                                   </div>
                                 ) : null}
-                                {status === "Accepted" ? (
+                                {status === "ACCEPTED" &&
+                                applicationId ===
+                                  item.application_created_by.id ? (
                                   <span className="flex text-[#1E4620] font-nunito font-bold bg-[#EDF7ED] justify-center items-center w-[120px] h-[35px] rounded-md">
                                     Accepted
                                   </span>
                                 ) : null}
                               </div>
 
-                              <div onClick={() => setStatus("Rejected")}>
+                              <div
+                                onClick={() => {
+                                  handleResponse(
+                                    item.application_created_by.id,
+                                    "REJECTED"
+                                  );
+                                }}
+                              >
                                 {status === "" ? (
                                   <div className="flex justify-center items-center border-[1px] rounded-[50%] border-[red] p-[5px]">
                                     <CloseIcon sx={{ color: "red" }} />
                                   </div>
                                 ) : null}
-                                {status === "Rejected" ? (
+                                {status === "REJECTED" &&
+                                applicationId ===
+                                  item.application_created_by.id ? (
                                   <span className="flex text-[#5F2120] font-nunito font-bold bg-[#FDEDED] justify-center items-center w-[120px] h-[35px] rounded-md">
                                     Rejected
                                   </span>

@@ -1,4 +1,4 @@
-import ResponseTable from "../../components/Table";
+import ResponseTable from "./ResponseTable";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 type ResponseProp = {

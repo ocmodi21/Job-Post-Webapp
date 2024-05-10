@@ -1,6 +1,7 @@
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
 import useStorage from "../hooks/useStorage";
+import { useState } from "react";
 
 type JobApplyCardProp = {
   id: number;
@@ -27,8 +28,10 @@ const JobApplyCard = ({
 }: JobApplyCardProp) => {
   const { getDataFromStorage } = useStorage();
   const token = getDataFromStorage("userToken");
+  const [selectedId, setSelectedId] = useState(0);
 
   const handleApply = async (jobId: number) => {
+    setSelectedId(jobId);
     setApplyLoading(true);
     try {
       const response = await fetch(
@@ -45,13 +48,17 @@ const JobApplyCard = ({
 
       if (response.status !== 200) {
         toast.error(res.message);
+        setApplyLoading(false);
+        return;
+      } else {
+        setApplyLoading(false);
+        toast.success("Applied Successfully");
+        getAllJobsData();
       }
-      setApplyLoading(false);
-      toast.success("Applied Successfully");
-      getAllJobsData();
     } catch (error) {
       setApplyLoading(false);
       toast.error("Something went wrong!!");
+      return;
     }
   };
   return (
@@ -66,7 +73,7 @@ const JobApplyCard = ({
           className="hidden md:flex px-[20px] py-[7px] text-white font-nunito h-[40px] bg-[#021E45] rounded-[5px]"
           onClick={() => handleApply(id)}
         >
-          {applyLoading ? (
+          {id === selectedId && applyLoading ? (
             <CircularProgress size={"small"} sx={{ color: "white" }} />
           ) : (
             <span>Apply Now</span>
@@ -99,8 +106,8 @@ const JobApplyCard = ({
         className="flex md:hidden px-[20px] py-[7px] text-white h-[40px] bg-[#021E45] font-nunito rounded-[5px] mt-[15px] justify-center items-center"
         onClick={() => handleApply(id)}
       >
-        {applyLoading ? (
-          <CircularProgress sx={{ color: "#021E45" }} />
+        {id === selectedId && applyLoading ? (
+          <CircularProgress size={"small"} sx={{ color: "white" }} />
         ) : (
           <span>Apply Now</span>
         )}
