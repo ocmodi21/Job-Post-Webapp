@@ -23,7 +23,6 @@ const ResponseTable = ({ id }: TableDataProp) => {
   const [applicationId, setApplicationId] = useState(0);
   const [data, setData] = useState<any[]>([]);
   const token = getDataFromStorage("userToken");
-  const [resLoading, setResLoading] = useState(false);
 
   useEffect(() => {
     getAllResponses();
@@ -88,7 +87,6 @@ const ResponseTable = ({ id }: TableDataProp) => {
   };
 
   const handleResponse = async (applicantId: number, resStatus: string) => {
-    setResLoading(true);
     setApplicationId(applicantId);
     setStatus(resStatus);
     const responseData = await httpPut(
@@ -99,7 +97,6 @@ const ResponseTable = ({ id }: TableDataProp) => {
       token
     );
 
-    setResLoading(false);
     if (responseData.isError) {
       toast.error(`${responseData.data}`);
       return;
