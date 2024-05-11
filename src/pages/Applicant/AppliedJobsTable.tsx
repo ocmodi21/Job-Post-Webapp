@@ -125,14 +125,14 @@ const AppliedJobsTable = () => {
               </thead>
               <tbody className="divide-y divide-gray-200 overflow-y-auto">
                 {currentData ? (
-                  currentData.map((item) => {
+                  currentData.map((item, index) => {
                     return (
                       <tr
                         key={item.job.id}
                         className="hover:bg-[#F5F7F8] cursor-pointer"
                       >
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                          {item.job.id}
+                          {index + 1}
                         </td>
                         <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
                           {item.job.company_name}

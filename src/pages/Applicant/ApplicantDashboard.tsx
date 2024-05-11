@@ -15,8 +15,6 @@ import Avatar from "@mui/material/Avatar";
 import { Badge } from "@mui/material";
 import AllJobs from "../Applicant/AllJobs";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setToken } from "../../redux/Slice/UserSlice";
 import useStorage from "../../hooks/useStorage";
 import { useNavigate } from "react-router-dom";
 import AppliedJobs from "./AppliedJobs";
@@ -32,7 +30,6 @@ const applicantDashboard = (props: Props) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [applicantTabStatus, setApplicantTabStatus] = useState("Jobs");
-  const dispatch = useDispatch();
   const { clearDataFromStorage } = useStorage();
   const navigate = useNavigate();
 
@@ -99,7 +96,6 @@ const applicantDashboard = (props: Props) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => {
-              dispatch(setToken(null));
               clearDataFromStorage();
               navigate("/");
             }}

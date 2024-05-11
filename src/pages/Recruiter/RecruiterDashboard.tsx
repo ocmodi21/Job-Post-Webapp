@@ -17,8 +17,6 @@ import JobApplications from "./JobApplications";
 import AllJobs from "./AllJobs";
 import Responses from "./Responses";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setToken } from "../../redux/Slice/UserSlice";
 import useStorage from "../../hooks/useStorage";
 import { useNavigate } from "react-router-dom";
 
@@ -34,7 +32,6 @@ const RecruiterDashboard = (props: Props) => {
   const [isClosing, setIsClosing] = useState(false);
   const [recruiterTabStatus, setRecruiterTabStatus] = useState("CreateJob");
   const [jobId, setJobId] = useState<number>(0);
-  const dispatch = useDispatch();
   const { clearDataFromStorage } = useStorage();
   const navigate = useNavigate();
 
@@ -101,7 +98,6 @@ const RecruiterDashboard = (props: Props) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => {
-              dispatch(setToken(null));
               clearDataFromStorage();
               navigate("/");
             }}

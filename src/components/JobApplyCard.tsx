@@ -1,7 +1,7 @@
-import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
 import useStorage from "../hooks/useStorage";
 import { useState } from "react";
+import CustomButton from "./CustomButton";
 
 type JobApplyCardProp = {
   id: number;
@@ -69,15 +69,12 @@ const JobApplyCard = ({
             {company_name}
           </span>
         </div>
-        <div
-          className="hidden md:flex px-[20px] py-[7px] text-white font-nunito h-[40px] bg-[#021E45] rounded-[5px]"
-          onClick={() => handleApply(id)}
-        >
-          {id === selectedId && applyLoading ? (
-            <CircularProgress size={"small"} sx={{ color: "white" }} />
-          ) : (
-            <span>Apply Now</span>
-          )}
+        <div className="hidden md:flex w-[30%] xl:w-[18%]">
+          <CustomButton
+            title="Apply Now"
+            onClick={() => handleApply(id)}
+            loading={id === selectedId && applyLoading}
+          />
         </div>
       </div>
 
@@ -102,15 +99,12 @@ const JobApplyCard = ({
         </div>
       </div>
 
-      <div
-        className="flex md:hidden px-[20px] py-[7px] text-white h-[40px] bg-[#021E45] font-nunito rounded-[5px] mt-[15px] justify-center items-center"
-        onClick={() => handleApply(id)}
-      >
-        {id === selectedId && applyLoading ? (
-          <CircularProgress size={"small"} sx={{ color: "white" }} />
-        ) : (
-          <span>Apply Now</span>
-        )}
+      <div className="flex md:hidden mt-[15px]">
+        <CustomButton
+          title="Apply Now"
+          onClick={() => handleApply(id)}
+          loading={id === selectedId && applyLoading}
+        />
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import useStorage from "../hooks/useStorage";
 
 const Landing = () => {
-  const token = useSelector((state: any) => state.user.token);
+  const { getDataFromStorage } = useStorage();
+  const token = getDataFromStorage("userToken");
   return (
     <>
       {token === null ? (

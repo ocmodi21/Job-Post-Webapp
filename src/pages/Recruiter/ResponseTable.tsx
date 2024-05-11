@@ -19,9 +19,8 @@ const ResponseTable = ({ id }: TableDataProp) => {
   const { getDataFromStorage } = useStorage();
   const { httpGet, httpPut } = useFetch();
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
-  const [applicationId, setApplicationId] = useState(0);
   const [data, setData] = useState<any[]>([]);
+  const [statusLoading, setStatusLoading] = useState(false);
   const token = getDataFromStorage("userToken");
 
   useEffect(() => {
@@ -87,8 +86,7 @@ const ResponseTable = ({ id }: TableDataProp) => {
   };
 
   const handleResponse = async (applicantId: number, resStatus: string) => {
-    setApplicationId(applicantId);
-    setStatus(resStatus);
+    setStatusLoading(true);
     const responseData = await httpPut(
       `recruiter/job/${id}/applications/${applicantId}`,
       {
@@ -97,11 +95,13 @@ const ResponseTable = ({ id }: TableDataProp) => {
       token
     );
 
+    setStatusLoading(false);
     if (responseData.isError) {
       toast.error(`${responseData.data}`);
       return;
     } else if (data) {
       toast.success("Response updated!!");
+      getAllResponses();
     }
   };
 
@@ -156,14 +156,14 @@ const ResponseTable = ({ id }: TableDataProp) => {
                 </thead>
                 <tbody className="divide-y divide-gray-200 overflow-y-auto">
                   {currentData ? (
-                    currentData.map((item) => {
+                    currentData.map((item, index) => {
                       return (
                         <tr
                           key={item.application_created_by.id}
                           className="hover:bg-[#F5F7F8] cursor-pointer"
                         >
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            {item.application_created_by.id}
+                            {index + 1}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
                             {item.application_created_by.first_name}
@@ -178,51 +178,43 @@ const ResponseTable = ({ id }: TableDataProp) => {
                             {item.application_created_by.phone_number}
                           </td>
                           <td className="px-6 py-4 text-md text-gray-800 whitespace-nowrap font-nunito font-semibold">
-                            <div className="flex fle-row gap-4">
-                              <div
-                                onClick={() => {
-                                  handleResponse(
-                                    item.application_created_by.id,
-                                    "ACCEPTED"
-                                  );
-                                }}
-                              >
-                                {status === "" ? (
+                            {statusLoading ? (
+                              <CircularProgress sx={{ color: "#021E45" }} />
+                            ) : null}
+                            {item.status === "ACCEPTED" ? (
+                              <span className="flex text-[#1E4620] font-nunito font-bold bg-[#EDF7ED] justify-center items-center w-[120px] h-[35px] rounded-md">
+                                Accepted
+                              </span>
+                            ) : null}
+                            {item.status === "REJECTED" ? (
+                              <span className="flex text-[#5F2120] font-nunito font-bold bg-[#FDEDED] justify-center items-center w-[120px] h-[35px] rounded-md">
+                                Rejected
+                              </span>
+                            ) : null}
+
+                            {item.status === "PENDING" && !statusLoading ? (
+                              <div className="flex fle-row gap-4">
+                                <div
+                                  onClick={() => {
+                                    handleResponse(item.id, "ACCEPTED");
+                                  }}
+                                >
                                   <div className="flex justify-center items-center border-[1px] rounded-[50%] border-[green] p-[5px]">
                                     <CheckIcon sx={{ color: "green" }} />
                                   </div>
-                                ) : null}
-                                {status === "ACCEPTED" &&
-                                applicationId ===
-                                  item.application_created_by.id ? (
-                                  <span className="flex text-[#1E4620] font-nunito font-bold bg-[#EDF7ED] justify-center items-center w-[120px] h-[35px] rounded-md">
-                                    Accepted
-                                  </span>
-                                ) : null}
-                              </div>
+                                </div>
 
-                              <div
-                                onClick={() => {
-                                  handleResponse(
-                                    item.application_created_by.id,
-                                    "REJECTED"
-                                  );
-                                }}
-                              >
-                                {status === "" ? (
+                                <div
+                                  onClick={() => {
+                                    handleResponse(item.id, "REJECTED");
+                                  }}
+                                >
                                   <div className="flex justify-center items-center border-[1px] rounded-[50%] border-[red] p-[5px]">
                                     <CloseIcon sx={{ color: "red" }} />
                                   </div>
-                                ) : null}
-                                {status === "REJECTED" &&
-                                applicationId ===
-                                  item.application_created_by.id ? (
-                                  <span className="flex text-[#5F2120] font-nunito font-bold bg-[#FDEDED] justify-center items-center w-[120px] h-[35px] rounded-md">
-                                    Rejected
-                                  </span>
-                                ) : null}
+                                </div>
                               </div>
-                            </div>
+                            ) : null}
                           </td>
                         </tr>
                       );
